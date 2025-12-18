@@ -1,0 +1,16 @@
+[[local-agent]]
+path = "src/agents/firecrawl"
+
+[[local-agent]]
+path = "src/agents/github"
+
+[[local-agent]]
+path = "src/agents/interface"
+
+[[local-agent]]
+path = "agents/buffalo"
+
+[[local-agent]]
+path = "src/agents/community"
+
+

@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  coral-server:
+    build:
+      context: ./backend/orchestrator/coral-server
+    working_dir: /workspace
+    environment:
+      - CORAL_CONFIG_PATH=/workspace/backend/orchestrator/application.yaml
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./:/workspace
+
+  interface-agent:
+    build:
+      context: ./src/agents/interface
+    command: ["bash", "run_agent.sh", "main.py"]
+    environment:
+      - MODEL_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - coral-server
+
+  github-agent:
+    build:
+      context: ./src/agents/github
+    command: ["bash", "run_agent.sh", "main.py"]
+    environment:
+      - MODEL_API_KEY=${OPENAI_API_KEY}
+      - GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_PERSONAL_ACCESS_TOKEN}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - coral-server
+
+  firecrawl-agent:
+    build:
+      context: ./src/agents/firecrawl
+    command: ["bash", "run_agent.sh", "main.py"]
+    environment:
+      - MODEL_API_KEY=${OPENAI_API_KEY}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - coral-server
+
+  community-agent:
+    build:
+      context: ./src/agents/community
+    command: ["python", "main.py"]
+    environment:
+      - MODEL_API_KEY=${OPENAI_API_KEY}
+      - GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_PERSONAL_ACCESS_TOKEN}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - coral-server
+
+  coral-studio:
+    build:
+      context: ./frontend/studio/coral-studio
+    working_dir: /workspace
+    command: ["yarn", "dev", "--host", "0.0.0.0", "--port", "5173"]
+    environment:
+      - VITE_CORAL_SERVER_URL=http://coral-server:5555
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/studio/coral-studio:/workspace

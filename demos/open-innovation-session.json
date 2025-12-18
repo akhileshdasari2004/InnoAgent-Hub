@@ -1,0 +1,49 @@
+{
+  "agentGraph": {
+    "agents": {
+      "interface": {
+        "type": "local",
+        "agentType": "interface",
+        "options": {
+          "MODEL_API_KEY": "YOUR_OPENAI_API_KEY"
+        },
+        "tools": ["user-input-respond", "user-input-request"]
+      },
+      "firecrawl": {
+        "type": "local",
+        "agentType": "firecrawl",
+        "options": {
+          "MODEL_API_KEY": "YOUR_OPENAI_API_KEY",
+          "FIRECRAWL_API_KEY": "YOUR_FIRECRAWL_API_KEY"
+        },
+        "tools": []
+      },
+      "github": {
+        "type": "local",
+        "agentType": "github",
+        "options": {
+          "MODEL_API_KEY": "YOUR_OPENAI_API_KEY",
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_PAT"
+        },
+        "tools": []
+      },
+      "community": {
+        "type": "local",
+        "agentType": "community",
+        "options": {
+          "MODEL_API_KEY": "YOUR_OPENAI_API_KEY",
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_PAT"
+        },
+        "tools": []
+      }
+    },
+    "links": [
+      ["interface", "firecrawl", "github", "community"],
+      ["firecrawl", "github"],
+      ["github", "community"],
+      ["community", "interface"]
+    ]
+  }
+}
+
+

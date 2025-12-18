@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Install Python dependencies (agents)
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest black flake8
+
+      - name: Install UI dependencies
+        working-directory: InnoAgent-Hub
+        run: |
+          corepack enable
+          pnpm install
+
+      - name: Lint Python
+        run: |
+          black --check src tests
+          flake8 src tests
+
+      - name: Lint TypeScript
+        working-directory: InnoAgent-Hub
+        run: pnpm lint
+
+      - name: Run pytest
+        run: pytest
+
+      - name: Build Coral Server
+        working-directory: backend/orchestrator/coral-server
+        run: ./gradlew build --no-daemon
+
+      - name: Build InnoAgent-Hub UI
+        working-directory: InnoAgent-Hub
+        run: pnpm build
